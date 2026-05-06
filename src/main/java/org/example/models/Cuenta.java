@@ -35,6 +35,7 @@ public class Cuenta {
     }
 
     public void debito(BigDecimal monto){
+        System.out.println("Monto a Retirar $" + monto);
         if(saldo.intValue() >= monto.intValue()) {
             this.saldo = this.saldo.subtract(monto);
         }

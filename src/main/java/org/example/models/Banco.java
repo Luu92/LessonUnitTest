@@ -15,6 +15,11 @@ public class Banco {
     }
 
     public void transferir(Cuenta origen, Cuenta destino, BigDecimal monto){
-
+        if(monto.intValue() > 0 && monto.intValue() <= origen.getSaldo().intValue()){
+            //destino.setSaldo( destino.getSaldo().add(monto) );
+            //origen.setSaldo( origen.getSaldo().subtract(monto) );
+            destino.credito(monto);
+            origen.debito(monto);
+        }
     }
 }

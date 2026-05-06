@@ -65,4 +65,22 @@ class CuentaTest {
         assertEquals(real.toLowerCase(),esperado.toLowerCase());
     }
 
+    @Test
+    void testDineroSuficiente(){
+        Cuenta cuenta = new Cuenta("Ejemplo 4", new BigDecimal("900.05"));
+        cuenta.debito(new BigDecimal("0.01"));
+        BigDecimal esperado = new BigDecimal("900.04");
+        assertEquals(esperado,cuenta.getSaldo());
+    }
+
+    @Test
+    void testTransferirDineroCuentas(){
+       Cuenta cuenta1 = new Cuenta("Cuenta 1", new BigDecimal("2500"));
+       Cuenta cuenta2 = new Cuenta("Cuenta 2", new BigDecimal("3500.5"));
+       Banco banco = new Banco();
+       banco.transferir(cuenta2,cuenta1,new BigDecimal("3500"));
+       assertEquals("0.5",cuenta2.getSaldo().toPlainString());
+       assertEquals("6000", cuenta1.getSaldo().toPlainString());
+    }
+
 }
