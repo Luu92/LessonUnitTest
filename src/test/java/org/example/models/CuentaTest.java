@@ -1,8 +1,10 @@
 package org.example.models;
 
 import org.example.exceptions.DineroInsuficienteException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.processing.Generated;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -88,6 +90,7 @@ class CuentaTest {
         Cuenta cuenta1 = new Cuenta("Cuenta 1", new BigDecimal("2500"));
         Cuenta cuenta2 = new Cuenta("Cuenta 2", new BigDecimal("3500.5"));
         Banco banco = new Banco();
+        banco.setNombre("BBVA");
         banco.addCuenta(cuenta1);
         banco.addCuenta(cuenta2);
         banco.transferir(cuenta2,cuenta1,new BigDecimal("3500"));
@@ -95,6 +98,37 @@ class CuentaTest {
         assertEquals("6000", cuenta1.getSaldo().toPlainString());
 
         assertEquals(2,banco.getCuentas().size());
+        assertEquals("BBVA", cuenta1.getBanco().getNombre());
+        assertEquals("Cuenta 1", banco.getCuentas().stream().filter(c -> c.getPersona().equals("Cuenta 1")));
     }
+
+    @Test
+    @DisplayName("Test con varias assertions")
+    void restAsertAll(){
+        Cuenta cuenta1 = new Cuenta("Cuenta 1", new BigDecimal("2500"));
+        Cuenta cuenta2 = new Cuenta("Cuenta 2", new BigDecimal("3500.5"));
+        Banco banco = new Banco();
+        banco.setNombre("BBVA");
+        banco.addCuenta(cuenta1);
+        banco.addCuenta(cuenta2);
+        banco.transferir(cuenta2,cuenta1,new BigDecimal("3500"));
+        assertAll(() -> {
+            assertEquals("0.5",cuenta2.getSaldo().toPlainString());},
+                () -> { assertEquals("6000", cuenta1.getSaldo().toPlainString()); },
+                () -> { assertEquals(2,banco.getCuentas().size()); },
+                () -> { assertEquals("BBVA", cuenta1.getBanco().getNombre()); });
+    }
+
+    @Test
+    @DisplayName("Test con mensaje de error desde assert")
+    void testAssertErrorConstructor(){
+        Cuenta cuenta = new Cuenta();
+        cuenta.setPersona("Laura Mariel");
+        cuenta.setSaldo( new BigDecimal("1000.1234"));
+        String valorEsperado = "Laura Mariel";
+        assertEquals(cuenta.getPersona(),valorEsperado, "Error con el nombre se esperaba " + valorEsperado);
+        assertNotNull(cuenta.getSaldo());
+    }
+
 
 }
