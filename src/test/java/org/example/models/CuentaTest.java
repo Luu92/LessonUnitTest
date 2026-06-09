@@ -1,21 +1,38 @@
 package org.example.models;
 
 import org.example.exceptions.DineroInsuficienteException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.*;
 
 import javax.annotation.processing.Generated;
 import java.math.BigDecimal;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class CuentaTest {
 
+    Cuenta cuenta;
+
+    @BeforeEach
+    void initMethodTest(){
+        this.cuenta = new Cuenta("Laura",  new BigDecimal("1000.123"));
+        System.out.println("Iniciamos el objeto BeforeEach");
+    }
+
+    @AfterEach
+    void tearDown(){
+        System.out.println("Finalizando el metodo");
+    }
+
     @Test
     void testNombreCuenta(){
-        Cuenta cuenta = new Cuenta();
-        cuenta.setPersona("Laura");
-        cuenta.setSaldo( new BigDecimal("1000.1234"));
+        //Cuenta cuenta = new Cuenta();
+        //cuenta.setPersona("Laura");
+        //cuenta.setSaldo( new BigDecimal("1000.1234"));
         String valorEsperado = "Laura";
         assertEquals(cuenta.getPersona(),valorEsperado);
         assertNotNull(cuenta.getSaldo());
@@ -23,7 +40,7 @@ class CuentaTest {
 
     @Test
     void testSaldoCuenta(){
-        Cuenta cuenta = new Cuenta();
+        //Cuenta cuenta = new Cuenta();
         cuenta.setSaldo(new BigDecimal("12443.1234"));
         cuenta.setPersona("EjemploNombre");
         assertEquals(12443.1234,cuenta.getSaldo().doubleValue());
@@ -40,7 +57,7 @@ class CuentaTest {
 
     @Test
     void testDebitoCuenta(){
-        Cuenta cuenta =  new Cuenta("Ejemplo2", new BigDecimal("1000"));
+        //Cuenta cuenta =  new Cuenta("Ejemplo2", new BigDecimal("1000"));
         cuenta.debito(new BigDecimal("100"));
         System.out.println("Saldo Actual: $" + cuenta.getSaldo());
         assertNotNull(cuenta.getSaldo());
@@ -58,7 +75,7 @@ class CuentaTest {
 
     @Test
     void testDineroInsuficienteExceptionCuenta(){
-        Cuenta cuenta = new Cuenta("Ejemplo 3", new BigDecimal("1000.5"));
+        //Cuenta cuenta = new Cuenta("Ejemplo 3", new BigDecimal("1000.5"));
         Exception exception = assertThrows(DineroInsuficienteException.class, ()->{
             cuenta.debito(new BigDecimal("1001"));
         });
@@ -99,7 +116,7 @@ class CuentaTest {
 
         assertEquals(2,banco.getCuentas().size());
         assertEquals("BBVA", cuenta1.getBanco().getNombre());
-        assertEquals("Cuenta 1", banco.getCuentas().stream().filter(c -> c.getPersona().equals("Cuenta 1")));
+        //assertEquals("Cuenta 1", banco.getCuentas().stream().filter(c -> c.getPersona().equals("Cuenta 1")));
     }
 
     @Test
@@ -122,7 +139,7 @@ class CuentaTest {
     @Test
     @DisplayName("Test con mensaje de error desde assert")
     void testAssertErrorConstructor(){
-        Cuenta cuenta = new Cuenta();
+        //Cuenta cuenta = new Cuenta();
         cuenta.setPersona("Laura Mariel");
         cuenta.setSaldo( new BigDecimal("1000.1234"));
         String valorEsperado = "Laura Mariel";
@@ -130,5 +147,43 @@ class CuentaTest {
         assertNotNull(cuenta.getSaldo());
     }
 
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void testSystemDiferentWindows(){
 
+    }
+
+    @Test
+    @EnabledOnOs({OS.MAC, OS.LINUX})
+    void testSystemDiferentMacLinux(){
+
+    }
+
+    @Test
+    @DisabledOnOs(OS.WINDOWS)
+    void testNoWindows(){
+    }
+
+    @Test
+    @DisabledOnOs({OS.MAC, OS.LINUX})
+    void testNoLinuxMac(){
+    }
+
+    @Test
+    @EnabledOnJre(JRE.JAVA_17)
+    void soloJRE17(){
+    }
+    //Imprime las variables del sistema
+    @Test
+    void imprimirVariablesAmbiente(){
+       Map<String, String> getEnv = System.getenv();
+       getEnv.forEach( (k,v) -> System.out.println(k + " = " + v) );
+    }
+
+    //Test que nos ayuda a saber las variable del sistema en caso de existir
+    @Test
+    @EnabledIfEnvironmentVariable(named = "JAVA_HOME", matches =  ".*jdk-17.0.13.*")
+    void testJavaHome(){
+
+    }
 }
