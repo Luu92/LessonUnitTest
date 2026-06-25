@@ -1,14 +1,17 @@
 package org.example.models;
 
 import org.example.exceptions.DineroInsuficienteException;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import javax.annotation.processing.Generated;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,9 +21,10 @@ class CuentaTest {
     Cuenta cuenta;
 
     @BeforeEach
-    void initMethodTest(){
+    void initMethodTest(TestInfo testInfo ,  TestReporter testReporter){
         this.cuenta = new Cuenta("Laura",  new BigDecimal("1000.123"));
         System.out.println("Iniciamos el objeto BeforeEach");
+        System.out.println("Ejecuntando " + testInfo.getTestMethod().orElse(null).getName() + " con etiqueta " + testInfo.getTags());
     }
 
     @AfterEach
@@ -186,4 +190,94 @@ class CuentaTest {
     void testJavaHome(){
 
     }
+
+    //Clases anidadas con el proposito de agrupar las pruebas con una jerarqui, si la prueba falla de la clase
+    //heredada falla todas la pruebas desde las clase hija hasta la padre
+    @Nested
+    class ClasesAnidada{
+        //Propiedades y metodos de la clase
+        @Test
+        void testCaseAnidada(){
+            assertEquals(2,2);
+        }
+    }
+
+    @Nested
+    class  ClasesAnidadados{
+        @Test
+        void testCaseAnidadaDos() {
+            assertEquals(false, false);
+        }
+        //Podemos repetir metodos ya implementados en otras clases y minimo el parametro que lo va a realizar
+        @RepeatedTest(2)
+        void testCaseAnidada(){
+            assertEquals(2,2);
+        }
+    }
+
+    @Tag("param") // Marca para ejecutar las pruebas con la etiqueta "param", editamos las configuraciones como "run tags"
+    @Nested
+    class PruebasParametrizadas{
+        //Test patametrizado
+        @ParameterizedTest
+        @ValueSource(strings = {"100","200","300","500", "700", "1000"})
+        void testDebitoCuentaConParametros(String monto){
+            cuenta.debito(new BigDecimal(monto));
+            System.out.println("Saldo Actual: $" + cuenta.getSaldo());
+            assertNotNull(cuenta.getSaldo());
+            assertTrue(cuenta.getSaldo().compareTo( BigDecimal.ZERO) > 0);
+        }
+
+        //Test patametrizado
+        @ParameterizedTest
+        @CsvSource({"1,100","2,200","3,300","4,500", "5,700", "6,1000"})
+        void testDebitoCuentaConParametrosCSVSource(String index , String monto){
+            System.out.println("Indece " + index + " del archivo CSV -> " + monto);
+            cuenta.debito(new BigDecimal(monto));
+            System.out.println("Saldo Actual: $" + cuenta.getSaldo());
+            assertNotNull(cuenta.getSaldo());
+            assertTrue(cuenta.getSaldo().compareTo( BigDecimal.ZERO) > 0);
+        }
+
+        @ParameterizedTest
+        @CsvSource({"200,100","250,200","999,300","4000,500", "750,700", "1000,1000"})
+        void testDebitoCuentaConParametrosCSVSource2(String saldo , String monto){
+            System.out.println("Cuento con " + saldo + " y quiero retirar-> " + monto);
+            cuenta.setSaldo(new BigDecimal(saldo));
+            cuenta.debito(new BigDecimal(monto));
+            System.out.println("Saldo Actual: $" + cuenta.getSaldo());
+            assertNotNull(cuenta.getSaldo());
+            assertTrue(cuenta.getSaldo().compareTo( BigDecimal.ZERO) >= 0);
+        }
+
+        //Test patametrizado con un archivo de entrada
+        @ParameterizedTest
+        @CsvFileSource(resources = "/data.csv")
+        void testDebitoCuentaConParametrosFileSource(String monto){
+            System.out.println("Contenido en el archivo CSV -> " + monto);
+            cuenta.debito(new BigDecimal(monto));
+            System.out.println("Saldo Actual: $" + cuenta.getSaldo());
+            assertNotNull(cuenta.getSaldo());
+            assertTrue(cuenta.getSaldo().compareTo( BigDecimal.ZERO) > 0);
+        }
+
+
+        //Test  patametrizado con parametro de una función
+        @ParameterizedTest
+        @MethodSource("montoList")
+        void testDebitoCuentaConParametrosMethodSource(String monto){
+            System.out.println("Contenido en el retorno de la funcion -> " + monto);
+            cuenta.debito(new BigDecimal(monto));
+            System.out.println("Saldo Actual: $" + cuenta.getSaldo());
+            assertNotNull(cuenta.getSaldo());
+            assertTrue(cuenta.getSaldo().compareTo( BigDecimal.ZERO) > 0);
+        }
+
+        static List<String> montoList(){
+            return Arrays.asList("100","200","300","500", "700", "1000");
+        }
+    }
+
+
+
 }
